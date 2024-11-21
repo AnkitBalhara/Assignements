@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import VerifyOTP from './VerifyOTP'; // Import the VerifyOTP component
-import { Link } from 'react-router-dom';
+import React, { useContext, useState } from "react";
+import axios from "axios";
+import VerifyOTP from "./VerifyOTP"; // Import the VerifyOTP component
+import { Link } from "react-router-dom";
+import Context from "../context/Context";
 
 const Register = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({
+    name: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const {email,setEmail} = useContext(Context);
+  const [message, setMessage] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Manage popup visibility
-  const [email, setEmail] = useState(''); // Pass email to OTP component
+  // const [email, setEmail] = useState(""); // Pass email to OTP component
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleEmailChange =(e)=>{
+    setEmail(e.target.value)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if(formData.password.length<6){
+      setMessage("Password length must be of 6 character")
+      return;
+    }
     // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       setMessage("Passwords do not match. Please try again.");
@@ -23,21 +36,34 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/register', {
+      const response = await axios.post("http://localhost:8000/register", {
         name: formData.name,
-        email: formData.email,
+        email: email,
         password: formData.password,
       });
+      // console.log(response)
       setMessage(response.data.message);
-      setEmail(formData.email); // Save email for OTP verification
+      setEmail(email); // Save email for OTP verification
       setIsPopupOpen(true); // Show OTP popup
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Something went wrong!');
+      setMessage(error.response?.data?.message || "Something went wrong!");
+    }
+  };
+
+  const handleCancelOtp = async () => {
+    setIsPopupOpen(false);
+    setMessage("");
+    try {
+      const response = await axios.post("http://localhost:8000/cancel-otp", {
+        email: email,
+      });
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Something went wrong!");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen text-center bg-slate-700">
+    <div className="flex items-center justify-center min-h-screen text-center bg-black">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold text-gray-700 mb-4">Sign Up</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -54,8 +80,8 @@ const Register = () => {
             type="email"
             name="email"
             placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={handleEmailChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -85,10 +111,9 @@ const Register = () => {
           </button>
         </form>
 
-        
         {message && <p className="mt-4 text-center text-red-500">{message}</p>}
         <p className="mt-4 text-center text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="text-blue-500 hover:underline">
             Login here
           </Link>
@@ -99,9 +124,9 @@ const Register = () => {
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative">
-            <VerifyOTP email={email} />
+            <VerifyOTP  />
             <button
-              onClick={() => setIsPopupOpen(false)} // Close the popup
+              onClick={handleCancelOtp} // Close the popup
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
             >
               &#x2715; {/* Close Icon */}

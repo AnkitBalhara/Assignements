@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom'; // Ensure Link is imported
+import Context from '../context/Context';
 
 const Login = () => {
+  const {email,setEmail} = useContext(Context)
+
+
+  const handleNavigate=()=>{
+    setEmail("")
+  }
   return (
     <div className="flex items-center justify-center min-h-screen text-center bg-gray-800">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
@@ -10,6 +17,8 @@ const Login = () => {
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e)=>{setEmail(e.target.value)}}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
@@ -26,8 +35,13 @@ const Login = () => {
         </form>
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{' '}
-          <Link to="/" className="text-blue-500 hover:underline">
+          <Link to="/" className="text-blue-500 hover:underline" onClick={handleNavigate} >
             Register here
+          </Link>
+        </p>
+        <p className="mt-4 text-center text-gray-600">
+          <Link to="/forgetpassword" className="text-blue-500 hover:underline">
+            Forget Password
           </Link>
         </p>
       </div>

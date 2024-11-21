@@ -1,8 +1,11 @@
-import React from 'react';
+import React,{ useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import Context from './context/Context';
 
 const App = () => {
+  const [email,setEmail] = useState("")
   return (
+    <Context.Provider value={{email,setEmail}}>
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white py-4 shadow-md">
         <div className="container mx-auto px-4">
@@ -21,6 +24,7 @@ const App = () => {
         </div>
       </footer>
     </div>
+    </Context.Provider>
   );
 };
 

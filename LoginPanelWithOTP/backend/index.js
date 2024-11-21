@@ -1,12 +1,14 @@
 const express = require("express");
+const cors = require("cors");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const crypto = require("crypto"); // For generating a secure random OTP
 dotenv.config();
 const app = express();
 const Connect = require("./Database/Connect");
-
 const User = require("./models/Register.model");
 
+app.use(cors());
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
@@ -17,60 +19,146 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-app.get("/", async (req, res) => {
-  let userData = await User.find();
-  console.log(userData);
-  res.send("Jai Shree Ram");
+app.post("/register", async (req, res) => {
+  const { email, name, password } = req.body;
+
+  try {
+    // Generate a 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999);
+
+    // Save user details along with the OTP
+    const userCreated = await User.create({ name, email, password, otp });
+
+    // Send the OTP email
+    transporter.sendMail(
+      {
+        from: `Portal.Balhara <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Welcome to Balhara Portal! Verify Your Email Address",
+        html: `
+<p>
+Dear ${name},
+</p>
+<p>
+Thank you for signing up with Balhara Portal! We're thrilled to have you on board.
+</p>
+<p>
+To complete your registration, please use the One-Time Password (OTP) below to verify your email address:
+</p>
+<h2>${otp}</h2>
+<p>
+This OTP is valid for the next 10 minutes. If you didn't request this, please ignore this email.
+</p>
+<p>
+If you have any questions or need assistance, feel free to reach out to us at [support@example.com].
+</p>
+<p>
+Thank you for choosing Balhara Portal.
+</p>
+<p>
+Best regards,
+</p>
+<p>
+The Balhara Portal Team
+</p>
+`,
+      },
+      (error, info) => {
+        if (error) {
+          console.log("Error occurred:", error);
+          return res.status(500).json({ message: "Failed to send email" });
+        } else {
+          console.log("Email sent successfully:", info.messageId);
+        }
+      }
+    );
+
+    res.status(201).json({
+      message: "User registered successfully. OTP has been sent to your email.",
+    });
+  } catch (err) {
+    console.error("Error during user registration:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+  // console.log("User Created Successfully.")
 });
 
-app.post("/generateOtp", (req, res) => {
+app.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+  const UserDetails = await User.findOne({ email });
+  if (otp == UserDetails.otp) {
+    console.log("OTP Matched");
+    res.status(200);
+  } else {
+    console.log("OTP Mismatched...");
+    res.status(400);
+  }
+  res.end();
+});
+
+app.post("/regenerate-otp", async (req, res) => {
   const { email } = req.body;
+
+  const UserDeatils = await User.findOne({ email });
+console.log(UserDeatils)
+  const otp = crypto.randomInt(100000, 999999);
+
+  UserDeatils.otp = otp;
+  await UserDeatils.save();
 
   transporter.sendMail(
     {
-      from: `Naukri App <${process.env.EMAIL_USER}>`,
-      to: ` ${email}`,
-      subject: "Web Developer Position",
-      html: `<p>Dear Applicant,
-</p>
-
+      from: `Portal.Balhara <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Welcome to Balhara Portal! Verify Your Email Address",
+      html: `
 <p>
-We have received your Job Application on Naukri portal “Internship” in “MERN Developer”, As per our selection process you need to first complete a Machine test and based on the output of Machine test, shortlisted applicants will be called for Face to Face interview at our Whitefield, Bangalore office.
+Dear ${UserDeatils.name},
 </p>
 <p>
-Please find the attached MERN machine test. This test needs to be completed by you and is to be submitted back by 21-11-2024 at 10 AM, on this email ID only.
-</p>
- 
-<h3>
-Note – You have to submit the file having your code and video of the task to be shared, of the code output that you have compiled. Also upload the code file in Github and share your Github account details to access the code in Github.
-</h3>
-
-<h4>
-2. This is a 6(six) months internship offer for which candidates shortlisted on the basis of this test, will be called for face to face interview at our White Field-Bangalore office. This is a work from office internship at our Whitefield- Bangalore Office and “No” virtual task is involved in it.
-</h4>
-
-<p>
-Please feel free to connect on the below given email ID for any queries. 
+Thank you for signing up with Balhara Portal! We're thrilled to have you on board.
 </p>
 <p>
-
-Regards
+To complete your registration, please use the One-Time Password (OTP) below to verify your email address:
+</p>
+<h2>${otp}</h2>
+<p>
+This OTP is valid for the next 10 minutes. If you didn't request this, please ignore this email.
 </p>
 <p>
-Team HR
-</p>`,
+If you have any questions or need assistance, feel free to reach out to us at [support@example.com].
+</p>
+<p>
+Thank you for choosing Balhara Portal.
+</p>
+<p>
+Best regards,
+</p>
+<p>
+The Balhara Portal Team
+</p>
+`,
     },
     (error, info) => {
       if (error) {
-        console.log("Error occured :-", error);
+        console.log("Error occurred:", error);
+        return res.status(500).json({ message: "Failed to send email" });
       } else {
-        console.log("Email send successfully", info.messageId);
+        console.log("Email sent successfully:", info.messageId);
       }
     }
   );
-  res.send("Jai Shree Ram");
 });
 
+app.post("/cancel-otp",async (req,res)=>{
+  const {email} = req.body;
+console.log(email)
+  const UserDetails = await User.deleteOne({email});
+  console.log(UserDetails)
+  console.log("User Deleted Successfully.")
+})
+
 app.listen(process.env.PORT, () => {
-  console.log("Server Started... ");
+  console.log("Server Started...");
 });
