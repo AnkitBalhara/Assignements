@@ -68,7 +68,7 @@ The Balhara Portal Team
 app.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
   const hashPassword = await bcrypt.hash(password, 10);
-  console.log(hashPassword);
+  // console.log(hashPassword);
   try {
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999);
@@ -170,7 +170,43 @@ app.post("/forget-password-otp", async (req, res) => {
 
   UserDetails.otp = otp;
   await UserDetails.save();
-  console.log("Suucess full request for Forget Password OTP")
+  console.log("Suucess full request for Forget Password OTP");
+});
+
+app.post("/forget-password-otp-match", async (req, res) => {
+  const { email, otp } = req.body;
+
+  const UserDetails = await User.findOne({ email });
+  try {
+    if (otp == UserDetails.otp) {
+      res.status(200).json({ message: "OTP Matched" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: "OTP Doesn't match." });
+    console.log("Otp Mismatch");
+  }
+});
+
+app.post("/new-password", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const UserDetails = await User.findOne({ email });
+
+    if (!UserDetails) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    UserDetails.password = hashPassword;
+    await UserDetails.save();
+
+    res.status(200).json({ message: "Password Updated Successfully" });
+  } catch (error) {
+    console.error("Error in Password Update", error);
+    res.status(500).json({ message: "Error in Password Update." });
+  }
 });
 
 app.listen(process.env.PORT, () => {

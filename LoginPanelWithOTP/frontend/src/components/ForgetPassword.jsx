@@ -2,12 +2,16 @@ import React, { useContext, useState } from "react";
 import Context from "../context/Context";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import NewPassword from "./NewPassword";
 
 const ForgetPassword = () => {
   const navigate = useNavigate();
   const { email, setEmail } = useContext(Context);
+  const [otp, setOtp] = useState("");
+  const [message, setMessage] = useState("");
   const [title, setTitle] = useState("Verify Account");
   const [btnText, setBtnText] = useState("Generate OTP");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleGenerateOTP = async (e) => {
     e.preventDefault();
@@ -25,12 +29,38 @@ const ForgetPassword = () => {
       setBtnText("Verify Account");
       setTitle("Ownership Verification");
     } catch (error) {
+      setMessage("Something went wrong!! Check Connection!!");
       console.log("error Occurred:- ", error.message);
     }
   };
 
-  const handleVerifyAccount = (e) => {
+  const handleVerifyAccount = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/forget-password-otp-match",
+        {
+          email,
+          otp,
+        }
+      );
+      if (response.status == 200) {
+        console.log("OTP Match");
+        setIsPopupOpen(true);
+        // navigate("/profile");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        return alert("OTP Doesn't match");
+      } else {
+        console.error("An error occurred:", error.message);
+      }
+    }
+  };
+
+  const handleCancelNewPassword = async () => {
+    navigate("/login");
   };
 
   return (
@@ -49,6 +79,10 @@ const ForgetPassword = () => {
           <input
             type="text"
             placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => {
+              setOtp(e.target.value);
+            }}
             className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               title == "Verify Account" ? "hidden" : "none:"
             } `}
@@ -78,6 +112,22 @@ const ForgetPassword = () => {
           Cancel
         </button>
       </div>
+
+      {message && <p className="mt-4 text-center text-red-500">{message}</p>}
+
+      {isPopupOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative">
+            <NewPassword />
+            <button
+              onClick={handleCancelNewPassword} // Close the popup
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+            >
+              &#x2715; {/* Close Icon */}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
