@@ -36,14 +36,13 @@ const isSignedIn = (req, res, next) => {
   }
 
   try {
-    const data = jwt.verify(token, process.env.JWT_SECRET); 
-    req.userdata = data; 
-    next(); 
+    const data = jwt.verify(token, process.env.JWT_SECRET);
+    req.userdata = data;
+    next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid Token" });
   }
 };
-
 
 const sendEmail = (email, name, otp) => {
   transporter.sendMail(
@@ -92,8 +91,14 @@ The Balhara Portal Team
 
 app.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
+
+  const alreadyUser = await User.findOne({ email });
+  if (alreadyUser)
+    return res
+      .status(500)
+      .json({ message: "Already have an account with this Email" });
+
   const hashPassword = await bcrypt.hash(password, 10);
-  // console.log(hashPassword);
   try {
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999);
@@ -114,13 +119,17 @@ app.post("/register", async (req, res) => {
     });
   } catch (err) {
     console.error("Error during user registration:", err);
-    res.status(500).json({ message: "Already have Account with this Email" });
+    res.status(500).json({ message: "Error during user registration" });
   }
 });
 
 app.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
   const UserDetails = await User.findOne({ email });
+
+  if (!UserDetails)
+    return res.status(400).json({ message: "No User Exists!!!" });
+
   if (otp == UserDetails.otp) {
     console.log("OTP Matched");
     res.status(200);
@@ -135,7 +144,10 @@ app.post("/regenerate-otp", async (req, res) => {
   const { email } = req.body;
 
   const UserDeatils = await User.findOne({ email });
-  console.log(UserDeatils);
+  // console.log(UserDeatils);
+  if (!UserDeatils) {
+    return res.status(400).json({message:"No User found with this email address"})
+  }
   const otp = crypto.randomInt(100000, 999999);
 
   UserDeatils.otp = otp;
@@ -147,7 +159,7 @@ app.post("/regenerate-otp", async (req, res) => {
 app.post("/cancel-otp", async (req, res) => {
   const { email } = req.body;
   await User.deleteOne({ email });
-  console.log("User Deleted Successfully.");
+  // console.log("User Deleted Successfully.");
 });
 
 app.post("/login", async (req, res) => {
@@ -249,9 +261,12 @@ app.post("/new-password", async (req, res) => {
 });
 
 app.get("/profile/fetch-data", isSignedIn, async (req, res) => {
-  const UserDetails = await User.findOne({email:req.userdata.email});
+  const UserDetails = await User.findOne({ email: req.userdata.email });
+  if(!UserDetails){
+    return res.status(400).json({message:"No user Found"});
+  }
   // console.log(req.userdata);
-  res.status(200).json({ message: "Okay" ,user:UserDetails});
+  res.status(200).json({ message: "User Data detched successfully", user: UserDetails });
 });
 
 app.get("/logout", isSignedIn, async (req, res) => {

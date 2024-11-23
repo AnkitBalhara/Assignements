@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Context from "../context/Context";
 
 const VerifyOTP = () => {
-  const {email,setEmail} = useContext(Context);
+  const { email, setEmail } = useContext(Context);
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [isRegenerateDisabled, setIsRegenerateDisabled] = useState(true); // Button initially disabled
@@ -28,7 +28,7 @@ const VerifyOTP = () => {
       });
       setMessage(response.data.message);
       if (response.status === 200) {
-        setEmail("")
+        setEmail("");
         navigate("/login");
       }
     } catch (error) {
@@ -45,7 +45,9 @@ const VerifyOTP = () => {
 
     // Your OTP regeneration logic here
     // Example:
-    const response = await axios.post("http://localhost:8000/regenerate-otp", { email });
+    const response = await axios.post("http://localhost:8000/regenerate-otp", {
+      email,
+    });
   };
 
   return (
