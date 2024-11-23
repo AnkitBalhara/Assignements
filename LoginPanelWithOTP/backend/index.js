@@ -8,9 +8,15 @@ const bcrypt = require("bcryptjs");
 const app = express();
 const Connect = require("./Database/Connect");
 const User = require("./models/Register.model");
-
-app.use(cors());
-app.use(express.json());
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+    credentials: true, // Allow credentials
+  })
+);app.use(express.json());
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -128,8 +134,8 @@ app.post("/cancel-otp", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const UserDetails = await User.findOne({ email });
-  if(!UserDetails){
-    return res.status(400).json({message:"Email Doesn't Exists"})
+  if (!UserDetails) {
+    return res.status(400).json({ message: "Email Doesn't Exists" });
   }
 
   bcrypt.compare(password, UserDetails.password, (error, result) => {
@@ -138,6 +144,13 @@ app.post("/login", async (req, res) => {
       res.status(400).json({ message: "Wrong Password" });
     } else {
       console.log("Success Password");
+      let token = jwt.sign({email:email, userId: UserDetails._id }, "SecretKey");
+      res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+      });
+      // console.log("Cookies  Set")
       res.status(200).json({ message: "Password Match" });
     }
   });

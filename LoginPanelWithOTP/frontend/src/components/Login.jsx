@@ -11,16 +11,16 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
-      const response = await axios.post("http://localhost:8000/login", {
-        email,
-        password,
-      });
-  
+      const response = await axios.post(
+        "http://localhost:8000/login",
+        { email, password },{ withCredentials: true }
+      );
+
       if (response.status === 200) {
         navigate("/profile");
-        setMessage(""); 
+        setMessage("");
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -32,7 +32,7 @@ const Login = () => {
       }
     }
   };
-  
+
   const handleNavigate = () => {
     setEmail("");
   };
@@ -56,7 +56,6 @@ const Login = () => {
             onChange={(e) => {
               setPassword(e.target.value);
             }}
-
             placeholder="Password"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
