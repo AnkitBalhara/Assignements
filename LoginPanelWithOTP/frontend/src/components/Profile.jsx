@@ -11,8 +11,8 @@ const Profile = () => {
     axios
       .get("http://localhost:8000/profile/fetch-data", { withCredentials: true })
       .then((response) => {
-        console.log(first)
-        setUser(response.data);
+        // console.log(response)
+        setUser(response.data.user);
       })
       .catch((error) => {
         console.error("Error fetching user details:", error);
@@ -33,13 +33,13 @@ const Profile = () => {
     }
   };
 
-  // if (!user) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen">
-  //       <div className="text-gray-500 text-xl">Loading...</div>
-  //     </div>
-  //   );
-  // }
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-gray-500 text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
@@ -58,10 +58,10 @@ const Profile = () => {
 
         <div className="text-left">
           <p className="text-xl text-gray-600 mb-4">
-            <strong className="text-gray-800">Name:</strong> 
+            <strong className="text-gray-800">Name:</strong> {user.name}
           </p>
           <p className="text-xl text-gray-600">
-            <strong className="text-gray-800">Email:</strong>
+            <strong className="text-gray-800">Email:</strong>{user.email}
           </p>
         </div>
       </div>

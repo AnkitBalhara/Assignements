@@ -27,20 +27,23 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
-
 // Middleware...
-
 const isSignedIn = (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
     return res.status(400).json({ message: "Not Authorized" });
   }
-  let data = jwt.verify(token, "SecretKey");
-  res.userdata = data;
-  next();
+
+  try {
+    const data = jwt.verify(token, process.env.JWT_SECRET); 
+    req.userdata = data; 
+    next(); 
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid Token" });
+  }
 };
+
 
 const sendEmail = (email, name, otp) => {
   transporter.sendMail(
@@ -162,7 +165,7 @@ app.post("/login", async (req, res) => {
       console.log("Success Password");
       let token = jwt.sign(
         { email: email, userId: UserDetails._id },
-        "SecretKey"
+        process.env.JWT_SECRET
       );
       res.cookie("token", token, {
         httpOnly: true,
@@ -245,20 +248,17 @@ app.post("/new-password", async (req, res) => {
   }
 });
 
-app.get("/profile/fetch-data", async (req, res) => {
-  const token = req.cookies.token;
-  // console.log(token)
-  if (!token) {
-    return res.status(400).json({ message: "You are not Authorized" });
-  }
+app.get("/profile/fetch-data", isSignedIn, async (req, res) => {
+  const UserDetails = await User.findOne({email:req.userdata.email});
+  // console.log(req.userdata);
+  res.status(200).json({ message: "Okay" ,user:UserDetails});
 });
 
-app.get("/logout",isSignedIn, async (req, res) => {
+app.get("/logout", isSignedIn, async (req, res) => {
   res.clearCookie("token", { httpOnly: true, sameSite: "lax", path: "/" });
   console.log("Logot Successfully");
   res.status(200).json({ message: "Cookies Cleared" });
 });
-
 
 app.listen(process.env.PORT, () => {
   console.log("Server Started...");
