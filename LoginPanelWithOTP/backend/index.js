@@ -89,7 +89,7 @@ app.post("/register", async (req, res) => {
     });
   } catch (err) {
     console.error("Error during user registration:", err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Already have Account with this Email" });
   }
 });
 
@@ -128,6 +128,10 @@ app.post("/cancel-otp", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const UserDetails = await User.findOne({ email });
+  if(!UserDetails){
+    return res.status(400).json({message:"Email Doesn't Exists"})
+  }
+
   bcrypt.compare(password, UserDetails.password, (error, result) => {
     if (!result) {
       console.log("Wrong Password");

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
-import VerifyOTP from "./VerifyOTP"; // Import the VerifyOTP component
+import VerifyOTP from "./VerifyOTP";
 import { Link } from "react-router-dom";
 import Context from "../context/Context";
 
@@ -10,53 +10,67 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  const {email,setEmail} = useContext(Context);
+  const { email, setEmail } = useContext(Context);
   const [message, setMessage] = useState("");
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Manage popup visibility
-  // const [email, setEmail] = useState(""); // Pass email to OTP component
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
+  // Handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleEmailChange =(e)=>{
-    setEmail(e.target.value)
-  }
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
 
+  // Validate form inputs
+  const validateForm = () => {
+    if (formData.name.trim().length < 3) {
+      alert("Name must be at least 3 characters long");
+      return false;
+    }
+    if (email.trim().length === 0 || !email.includes("@")) {
+      alert("Please enter a valid email address");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setMessage("Password length must be at least 6 characters");
+      return false;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+      setMessage("Password must include a special character");
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setMessage("Passwords do not match");
+      return false;
+    }
+    return true;
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if(formData.password.length<6){
-      setMessage("Password length must be of 6 character")
-      return;
-    }
-    // Check if passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setMessage("Passwords do not match. Please try again.");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const response = await axios.post("http://localhost:8000/register", {
         name: formData.name,
-        email: email,
+        email,
         password: formData.password,
       });
-      // console.log(response)
       setMessage(response.data.message);
-      setEmail(email); // Save email for OTP verification
       setIsPopupOpen(true); // Show OTP popup
     } catch (error) {
       setMessage(error.response?.data?.message || "Something went wrong!");
     }
   };
 
+  // Handle OTP popup close
   const handleCancelOtp = async () => {
     setIsPopupOpen(false);
     setMessage("");
     try {
-      const response = await axios.post("http://localhost:8000/cancel-otp", {
-        email: email,
-      });
+      await axios.post("http://localhost:8000/cancel-otp", { email });
     } catch (error) {
       setMessage(error.response?.data?.message || "Something went wrong!");
     }
@@ -111,7 +125,15 @@ const Register = () => {
           </button>
         </form>
 
-        {message && <p className="mt-4 text-center text-red-500">{message}</p>}
+        {message && (
+          <p
+            className={`mt-4 text-center ${
+              message.includes("success") ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            {message}
+          </p>
+        )}
         <p className="mt-4 text-center text-gray-600">
           Already have an account?{" "}
           <Link to="/login" className="text-blue-500 hover:underline">
@@ -123,13 +145,13 @@ const Register = () => {
       {/* OTP Popup Modal */}
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative">
-            <VerifyOTP  />
+          <div className="relative bg-white p-6 rounded-lg shadow-lg">
+            <VerifyOTP />
             <button
-              onClick={handleCancelOtp} // Close the popup
+              onClick={handleCancelOtp}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
             >
-              &#x2715; {/* Close Icon */}
+              &#x2715;
             </button>
           </div>
         </div>

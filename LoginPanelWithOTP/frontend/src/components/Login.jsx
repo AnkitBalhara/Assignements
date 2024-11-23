@@ -24,8 +24,8 @@ const Login = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        // console.log("Wrong Password");
-        setMessage("Wrong Password");
+        // console.log(error.response)
+        setMessage(`${error.response.data.message}`);
       } else {
         // console.error("An error occurred:", error.message);
         setMessage("An unexpected error occurred. Please try again.");
@@ -33,25 +33,6 @@ const Login = () => {
     }
   };
   
-
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-
-  //   const response = await axios.post("http://localhost:8000/login", {
-  //     email,
-  //     password,
-  //   });
-
-  //   if (response.status == 200) {
-  //     navigate("/profile");
-  //     setMessage("")
-  //   }
-  //   if(response.status==400){
-  //     console.log("Wrong")
-  //     setMessage("Wrong Password")
-  //   }
-  // };
-
   const handleNavigate = () => {
     setEmail("");
   };

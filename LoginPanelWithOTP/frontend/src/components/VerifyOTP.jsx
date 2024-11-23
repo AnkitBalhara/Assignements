@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Context from "../context/Context";
 
 const VerifyOTP = () => {
-  const {email} = useContext(Context);
+  const {email,setEmail} = useContext(Context);
   const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [isRegenerateDisabled, setIsRegenerateDisabled] = useState(true); // Button initially disabled
@@ -28,7 +28,8 @@ const VerifyOTP = () => {
       });
       setMessage(response.data.message);
       if (response.status === 200) {
-        navigate("/profile");
+        setEmail("")
+        navigate("/login");
       }
     } catch (error) {
       setMessage(error.response?.data?.message || "Invalid or expired OTP.");
