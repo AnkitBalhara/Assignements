@@ -19,8 +19,9 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        navigate("/profile");
         setMessage("");
+        setEmail("")
+        navigate("/profile");
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {

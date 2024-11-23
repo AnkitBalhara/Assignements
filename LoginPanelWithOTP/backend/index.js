@@ -19,75 +19,9 @@ app.use(
 );
 app.use(express.json());
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// Middleware...
-const isSignedIn = (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(400).json({ message: "Not Authorized" });
-  }
-
-  try {
-    const data = jwt.verify(token, process.env.JWT_SECRET);
-    req.userdata = data;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid Token" });
-  }
-};
-
-const sendEmail = (email, name, otp) => {
-  transporter.sendMail(
-    {
-      from: `Portal.Balhara <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Welcome to Balhara Portal! Verify Your Email Address",
-      html: `
-<p>
-Dear ${name},
-</p>
-<p>
-Thank you for signing up with Balhara Portal! We're thrilled to have you on board.
-</p>
-<p>
-To complete your registration, please use the One-Time Password (OTP) below to verify your email address:
-</p>
-<h2>${otp}</h2>
-<p>
-This OTP is valid for the next 10 minutes. If you didn't request this, please ignore this email.
-</p>
-<p>
-If you have any questions or need assistance, feel free to reach out to us at [support@example.com].
-</p>
-<p>
-Thank you for choosing Balhara Portal.
-</p>
-<p>
-Best regards,
-</p>
-<p>
-The Balhara Portal Team
-</p>
-`,
-    },
-    (error, info) => {
-      if (error) {
-        console.log("Error occurred:", error);
-        return res.status(500).json({ message: "Failed to send email" });
-      } else {
-        console.log("Email sent successfully:", info.messageId);
-      }
-    }
-  );
-};
+// Middleware..
+const isSignedIn = require("./middleware/isSignedIn")
+const sendEmail = require("./routes/sendEmail.js")
 
 app.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
@@ -171,10 +105,10 @@ app.post("/login", async (req, res) => {
 
   bcrypt.compare(password, UserDetails.password, (error, result) => {
     if (!result) {
-      console.log("Wrong Password");
+      // console.log("Wrong Password");
       res.status(400).json({ message: "Wrong Password" });
     } else {
-      console.log("Success Password");
+      // console.log("Success Password");
       let token = jwt.sign(
         { email: email, userId: UserDetails._id },
         process.env.JWT_SECRET
