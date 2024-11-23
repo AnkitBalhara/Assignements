@@ -9,8 +9,9 @@ const Profile = () => {
   useEffect(() => {
     // Fetch user details from backend
     axios
-      .get("/api/user/profile", { withCredentials: true })
+      .get("http://localhost:8000/profile/fetch-data", { withCredentials: true })
       .then((response) => {
+        console.log(first)
         setUser(response.data);
       })
       .catch((error) => {
@@ -23,20 +24,22 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("/logout", { withCredentials: true });
+      await axios.get("http://localhost:8000/logout", { withCredentials: true });
       navigate("/login"); // Redirect to login after logout
     } catch (error) {
+      alert(error.response.data.message)
       console.error("Error during logout:", error);
+      navigate("/login")
     }
   };
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-gray-500 text-xl">Loading...</div>
-      </div>
-    );
-  }
+  // if (!user) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <div className="text-gray-500 text-xl">Loading...</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
@@ -55,10 +58,10 @@ const Profile = () => {
 
         <div className="text-left">
           <p className="text-xl text-gray-600 mb-4">
-            <strong className="text-gray-800">Name:</strong> {user.name}
+            <strong className="text-gray-800">Name:</strong> 
           </p>
           <p className="text-xl text-gray-600">
-            <strong className="text-gray-800">Email:</strong> {user.email}
+            <strong className="text-gray-800">Email:</strong>
           </p>
         </div>
       </div>

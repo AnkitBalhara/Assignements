@@ -13,10 +13,11 @@ const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", 
-    credentials: true, // Allow credentials
+    origin: "http://localhost:5173",
+    credentials: true,
   })
-);app.use(express.json());
+);
+app.use(express.json());
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -25,6 +26,21 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+
+
+// Middleware...
+
+const isSignedIn = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(400).json({ message: "Not Authorized" });
+  }
+  let data = jwt.verify(token, "SecretKey");
+  res.userdata = data;
+  next();
+};
 
 const sendEmail = (email, name, otp) => {
   transporter.sendMail(
@@ -144,7 +160,10 @@ app.post("/login", async (req, res) => {
       res.status(400).json({ message: "Wrong Password" });
     } else {
       console.log("Success Password");
-      let token = jwt.sign({email:email, userId: UserDetails._id }, "SecretKey");
+      let token = jwt.sign(
+        { email: email, userId: UserDetails._id },
+        "SecretKey"
+      );
       res.cookie("token", token, {
         httpOnly: true,
         sameSite: "lax",
@@ -225,6 +244,21 @@ app.post("/new-password", async (req, res) => {
     res.status(500).json({ message: "Error in Password Update." });
   }
 });
+
+app.get("/profile/fetch-data", async (req, res) => {
+  const token = req.cookies.token;
+  // console.log(token)
+  if (!token) {
+    return res.status(400).json({ message: "You are not Authorized" });
+  }
+});
+
+app.get("/logout",isSignedIn, async (req, res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "lax", path: "/" });
+  console.log("Logot Successfully");
+  res.status(200).json({ message: "Cookies Cleared" });
+});
+
 
 app.listen(process.env.PORT, () => {
   console.log("Server Started...");
