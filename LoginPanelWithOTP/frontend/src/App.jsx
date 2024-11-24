@@ -7,9 +7,9 @@ const App = () => {
   return (
     <Context.Provider value={{email,setEmail}}>
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-gray-500 text-white py-4 shadow-md">
+      <header className="bg-black text-white py-4 shadow-md">
         <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold">User Authentication App</h1>
+          <span className="text-2xl font-bold">Login Authentication App</span>
         </div>
       </header>
 
