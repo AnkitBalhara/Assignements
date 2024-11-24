@@ -15,6 +15,14 @@ const NewPassword = () => {
     if (password != confirmPassword) {
       return setMessage("Password & Confirm Password should be same");
     }
+    if (password.length < 6) {
+      setMessage("Password length must be at least 6 characters");
+      return false;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setMessage("Password must include a special character");
+      return false;
+    }
 
     try {
       const response = await axios.post("http://localhost:8000/new-password", {
@@ -23,7 +31,7 @@ const NewPassword = () => {
       });
       if (response.status == 200) {
         alert("Password Updated successfully");
-        navigate("/profile");
+        navigate("/login");
         return;
       }
     } catch (error) {

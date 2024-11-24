@@ -62,7 +62,7 @@ The Balhara Portal Team
   );
 };
 
-module.exports = sendEmail;
+module.exports = {sendEmail,transporter};
 
 
 // const nodemailer = require("nodemailer");

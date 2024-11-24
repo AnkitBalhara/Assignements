@@ -24,7 +24,7 @@ const ForgetPassword = () => {
         { email }
       );
       if (response.status == 200) {
-        console.log("Otp send Successfully");
+        // console.log("Otp send Successfully");
       }
       setBtnText("Verify Account");
       setTitle("Ownership Verification");
@@ -46,15 +46,17 @@ const ForgetPassword = () => {
         }
       );
       if (response.status == 200) {
-        console.log("OTP Match");
+        // console.log("OTP Match");
         setIsPopupOpen(true);
-        // navigate("/profile");
-      }
+      } 
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        return alert("OTP Doesn't match");
+        alert(error.response.data.message);
+        // return alert("OTP Doesn't match");
+        console.log("OTP Doesn't match");
       } else {
         console.error("An error occurred:", error.message);
+        return alert("OTP Doesn't match");
       }
     }
   };

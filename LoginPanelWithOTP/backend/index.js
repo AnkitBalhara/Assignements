@@ -1,3 +1,11 @@
+// const app = require("./app");
+
+// const PORT = process.env.PORT || 5000;
+
+// app.listen(PORT, () => {
+//   console.log(`Server started on http://localhost:${PORT}`);
+// });
+
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
@@ -20,11 +28,13 @@ app.use(
 app.use(express.json());
 
 // Middleware..
-const isSignedIn = require("./middleware/isSignedIn")
-const sendEmail = require("./routes/sendEmail.js")
+const isSignedIn = require("./middleware/isSignedIn");
+const { sendEmail, transporter } = require("./Utils/sendEmail.js");
 
 app.post("/register", async (req, res) => {
   const { email, name, password } = req.body;
+
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
   const alreadyUser = await User.findOne({ email });
   if (alreadyUser)
@@ -43,6 +53,7 @@ app.post("/register", async (req, res) => {
       email,
       password: hashPassword,
       otp,
+      otpExpires,
     });
 
     // Send the OTP email
@@ -59,20 +70,26 @@ app.post("/register", async (req, res) => {
 
 app.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
+
   const UserDetails = await User.findOne({ email });
 
-  if (!UserDetails)
+  if (!UserDetails) {
     return res.status(400).json({ message: "No User Exists!!!" });
+  }
+
+  if (Date.now() > UserDetails.otpExpires) {
+    return res.status(400).json({ message: "OTP has expired. Please regenerate." });
+  }
 
   if (otp == UserDetails.otp) {
     console.log("OTP Matched");
-    res.status(200);
+    res.status(200).json({ message: "OTP Verified Successfully." });
   } else {
     console.log("OTP Mismatched...");
-    res.status(400);
+    res.status(400).json({ message: "OTP doesn't match." });
   }
-  res.end();
 });
+
 
 app.post("/regenerate-otp", async (req, res) => {
   const { email } = req.body;
@@ -80,11 +97,15 @@ app.post("/regenerate-otp", async (req, res) => {
   const UserDeatils = await User.findOne({ email });
   // console.log(UserDeatils);
   if (!UserDeatils) {
-    return res.status(400).json({message:"No User found with this email address"})
+    return res
+      .status(400)
+      .json({ message: "No User found with this email address" });
   }
   const otp = crypto.randomInt(100000, 999999);
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
   UserDeatils.otp = otp;
+  UserDeatils.otpExpires = otpExpires;
   await UserDeatils.save();
 
   sendEmail(email, UserDeatils.name, otp);
@@ -155,7 +176,7 @@ app.post("/forget-password-otp", async (req, res) => {
 
   UserDetails.otp = otp;
   await UserDetails.save();
-  console.log("Suucess full request for Forget Password OTP");
+  console.log("Success full request for Forget Password OTP");
 });
 
 app.post("/forget-password-otp-match", async (req, res) => {
@@ -165,6 +186,8 @@ app.post("/forget-password-otp-match", async (req, res) => {
   try {
     if (otp == UserDetails.otp) {
       res.status(200).json({ message: "OTP Matched" });
+    } else {
+      return res.status(400).json({ message: "OTP Doesn't match." });
     }
   } catch (error) {
     res.status(400).json({ message: "OTP Doesn't match." });
@@ -196,11 +219,13 @@ app.post("/new-password", async (req, res) => {
 
 app.get("/profile/fetch-data", isSignedIn, async (req, res) => {
   const UserDetails = await User.findOne({ email: req.userdata.email });
-  if(!UserDetails){
-    return res.status(400).json({message:"No user Found"});
+  if (!UserDetails) {
+    return res.status(400).json({ message: "No user Found" });
   }
   // console.log(req.userdata);
-  res.status(200).json({ message: "User Data detched successfully", user: UserDetails });
+  res
+    .status(200)
+    .json({ message: "User Data detched successfully", user: UserDetails });
 });
 
 app.get("/logout", isSignedIn, async (req, res) => {
