@@ -29,8 +29,9 @@ const ForgetPassword = () => {
       setBtnText("Verify Account");
       setTitle("Ownership Verification");
     } catch (error) {
-      setMessage("Something went wrong!! Check Connection!!");
+      // setMessage("Something went wrong!! Check Connection!!");
       console.log("error Occurred:- ", error.message);
+      return alert (error.response.data.message)
     }
   };
 
@@ -51,8 +52,7 @@ const ForgetPassword = () => {
       } 
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        alert(error.response.data.message);
-        // return alert("OTP Doesn't match");
+        setMessage(error.response.data.message);
         console.log("OTP Doesn't match");
       } else {
         console.error("An error occurred:", error.message);
@@ -105,6 +105,7 @@ const ForgetPassword = () => {
 
         <button
           onClick={() => {
+            setEmail("")
             navigate("/login");
           }}
           className={
@@ -113,9 +114,11 @@ const ForgetPassword = () => {
         >
           Cancel
         </button>
+
+        {message && <p className="mt-4 text-center text-red-500">{message}</p>}
+
       </div>
 
-      {message && <p className="mt-4 text-center text-red-500">{message}</p>}
 
       {isPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

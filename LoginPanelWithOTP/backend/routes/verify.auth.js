@@ -1,30 +1,10 @@
 const express = require("express");
+const { handleVerifyOTP } = require("../controllers/verifyuser.controller");
 
 
-const User = require("../models/Register.model")
 const router  = express.Router();
 
 
-router.post("/verify-otp", async (req, res) => {
-    const { email, otp } = req.body;
-  
-    const UserDetails = await User.findOne({ email });
-  
-    if (!UserDetails) {
-      return res.status(400).json({ message: "No User Exists!!!" });
-    }
-  
-    if (Date.now() > UserDetails.otpExpires) {
-      return res.status(400).json({ message: "OTP has expired. Please regenerate." });
-    }
-  
-    if (otp == UserDetails.otp) {
-      console.log("OTP Matched");
-      res.status(200).json({ message: "OTP Verified Successfully." });
-    } else {
-      console.log("OTP Mismatched...");
-      res.status(400).json({ message: "OTP doesn't match." });
-    }
-  });
+router.post("/verify-otp", handleVerifyOTP);
 
   module.exports = router;

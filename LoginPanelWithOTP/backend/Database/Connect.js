@@ -8,7 +8,7 @@ const Connection = mongoose
     console.log("Connection Made successfully");
   })
   .catch((error) => {
-    console.log("Error occured in connection...");
+    console.log("Error occured in connection...",error);
   });
 
 module.exports = Connection;
