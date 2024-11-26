@@ -20,7 +20,6 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "User Already Exists!!" });
     }
 
-
     const hashPassword = await bcrypt.hash(password, 10);
 
     const UserCreated = await User.create({
@@ -39,9 +38,37 @@ export const signup = async (req, res) => {
     res.status(400).json({ message: "Error in signup" });
   }
 };
-export const singin = (req, res) => {
-  res.status(200).json({ message: "Sign in" });
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const UserDetails = await User.findOne({ email });
+    if (!UserDetails) {
+      return res.status(400).json({ message: "Invalid Credentials " });
+    }
+
+    const passwordCheck = await bcrypt.compare(password, UserDetails.password);
+    if (!passwordCheck) {
+      return res.status(400).json({ message: "Invalid Credintials" });
+    }
+
+    generateToken(UserDetails._id, res);
+
+    res.status(200).json({
+      _id: UserDetails._id,
+      fullName: UserDetails.fullName,
+      email: UserDetails.email,
+    });
+  } catch (error) {
+    console.log("Error in Login", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 export const logout = (req, res) => {
-  res.status(200).json({ message: "Logout" });
+  try {
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "lax", path: "/" });
+    res.status(200).json({ message: "Logout" });
+  } catch (error) {
+    console.log("Eror in Logout",error);
+    res.status(500).json({message:"Internal Server Error"})
+  }
 };
