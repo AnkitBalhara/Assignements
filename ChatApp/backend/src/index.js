@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 import authRoute from "./routes/auth.route.js";
+import messageRoute from "./routes/message.route.js";
 import { connectDB } from "./DB/db.js";
 connectDB();
 dotenv.config();
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoute);
-app.use("/api/message",);
+app.use("/api/message", messageRoute);
 
 app.get("/", (req, res) => {
   res.json({ message: "Jai SiyaRam" });
