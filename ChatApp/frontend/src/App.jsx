@@ -4,15 +4,13 @@ import { Outlet } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 
 const App = () => {
-  const {authUser,checkAuth} =useAuthStore()
+  const { authUser, checkAuth } = useAuthStore();
 
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    checkAuth();
+  }, [checkAuth]);
 
-  console.log({authUser})
-  
-
+  console.log({ authUser });
 
   return (
     <div>
