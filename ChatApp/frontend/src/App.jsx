@@ -9,6 +9,7 @@ import SettingPage from "./pages/SettingPage.jsx";
 import { useAuthStore } from "./store/useAuthStore.js";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import Navbar from "./components/Navbar.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -26,6 +27,7 @@ const App = () => {
   console.log(authUser);
   return (
     <BrowserRouter>
+    <Navbar/>
       <div>
         <Routes>
           <Route
@@ -36,7 +38,10 @@ const App = () => {
             path="/signup"
             element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />}
           />
-          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/login"
+            element={!authUser ? <LoginPage /> : <Navigate to={"/"} />}
+          />
           <Route
             path="/profile"
             element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />}
