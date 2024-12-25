@@ -24,7 +24,7 @@ const App = () => {
       </div>
     );
   }
-  console.log(authUser);
+  // console.log(authUser);
   return (
     <BrowserRouter>
     <Navbar/>
