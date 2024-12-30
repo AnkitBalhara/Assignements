@@ -145,7 +145,7 @@ const SignUpPage = () => {
           </form>
 
           <div className="text-center">
-            <p className="text-base-content/60">
+            <p className="text-base-content/60 text-white">
               Already have an account?{" "}
               <Link to="/login" className="link link-primary">
                 Sign in
