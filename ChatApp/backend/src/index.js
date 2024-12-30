@@ -22,7 +22,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 
-app.use("/api/message", messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is started at Port : ${process.env.PORT}`);
