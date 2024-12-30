@@ -8,6 +8,7 @@ export const useAuthStore = create((set) => ({
   isLoggingIn: false,
   isUpdatingProfile: false,
   isCheckingAuth: true,
+  onlineUsers: [],
 
   checkAuth: async () => {
     try {
@@ -15,7 +16,7 @@ export const useAuthStore = create((set) => ({
       set({ authUser: res.data });
     } catch (error) {
       console.log("Error in Check Auth", error);
-      console.log(error.response.data.message)
+      console.log(error.response.data.message);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
