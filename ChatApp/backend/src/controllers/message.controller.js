@@ -1,5 +1,6 @@
 import MessageModel from "../models/message.model.js";
 import UserModel from "../models/user.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -39,25 +40,23 @@ export const sendMessage = async (req, res) => {
     const { id: recieverId } = req.params;
     const { text, image } = req.body;
     const senderId = req.user._id;
-
     let imageUrl;
     if (image) {
       const uploadRespponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadRespponse.secure_url;
-
-      const newMessages = new MessageModel({
-        senderId,
-        recieverId,
-        text,
-        image: imageUrl,
-      });
-
-      await newMessages.save();
-
-      //   Real time functionality with socket.io
-
-      res.status(201).json(newMessages);
     }
+    const newMessages = new MessageModel({
+      senderId,
+      recieverId,
+      text,
+      image: imageUrl,
+    });
+
+    await newMessages.save();
+
+    //   Real time functionality with socket.io
+
+    res.status(201).json(newMessages);
   } catch (error) {
     console.log("Error in SendMessage Controller:-", error);
     res.status(500).json({ message: "Internal Server  Error" });
