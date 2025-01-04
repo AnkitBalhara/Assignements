@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
-import Context from "./context/Context";
+import { AuthProvider } from "./context/useAuthStore.jsx";
 
 const App = () => {
   return (
-    <Context.Provider>
+    <AuthProvider>
       <div className="min-h-screen bg-gray-100">
         <header className="bg-black text-white py-4 shadow-md">
           <div className="container mx-auto px-4">
-            <span className="text-2xl font-bold">Login Authentication App</span>
+            <span className="text-2xl font-bold">MERN Social Media</span>
           </div>
         </header>
 
-        <main className="container mx-auto ">
-          {/* The Outlet component will render the child components based on the route */}
+        <main className="container mx-auto">
+          {/* Render child routes */}
           <Outlet />
         </main>
 
@@ -26,7 +26,7 @@ const App = () => {
           </div>
         </footer>
       </div>
-    </Context.Provider>
+    </AuthProvider>
   );
 };
 

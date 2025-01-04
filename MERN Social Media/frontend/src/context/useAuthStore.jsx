@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Added loading state
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const checkAuth = async () => {
     try {

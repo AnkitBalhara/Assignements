@@ -1,8 +1,20 @@
-import { StrictMode } from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import HomePage from "../src/pages/HomePage.jsx";
+import LoginPage from "../src/pages/LoginPage.jsx";
+import ProfilePage from "../src/pages/ProfilePage.jsx";
+import SettingPage from "../src/pages/SettingPage.jsx";
+import SignUpPage from "../src/pages/SignUpPage.jsx";
+import { useAuth } from "./context/useAuthStore.jsx";
+
+// Wrapper for routes to access `authUser`
+const ProtectedRoute = ({ element }) => {
+  const { authUser } = useAuth();
+  return authUser ? element : <Navigate to="/login" />;
+};
 
 const router = createBrowserRouter([
   {
@@ -11,7 +23,31 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: authUser ? <HomePage /> : <Navigate to={"/login"} />,
+        element: (
+          <ProtectedRoute element={<HomePage />} />
+        ),
+      },
+      {
+        path: "/login",
+        element: (
+          <ProtectedRoute element={<LoginPage />} />
+        ),
+      },
+      {
+        path: "/signup",
+        element: <SignUpPage />,
+      },
+      {
+        path: "/profile",
+        element: (
+          <ProtectedRoute element={<ProfilePage />} />
+        ),
+      },
+      {
+        path: "/setting",
+        element: (
+          <ProtectedRoute element={<SettingPage />} />
+        ),
       },
     ],
   },
@@ -19,6 +55,6 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>
 );
