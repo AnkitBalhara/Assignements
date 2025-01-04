@@ -2,7 +2,11 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import HomePage from "../src/pages/HomePage.jsx";
 import LoginPage from "../src/pages/LoginPage.jsx";
 import ProfilePage from "../src/pages/ProfilePage.jsx";
@@ -23,15 +27,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <ProtectedRoute element={<HomePage />} />
-        ),
+        element: <ProtectedRoute element={<HomePage />} />,
       },
       {
         path: "/login",
-        element: (
-          <ProtectedRoute element={<LoginPage />} />
-        ),
+        element: <LoginPage />,
       },
       {
         path: "/signup",
@@ -39,15 +39,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile",
-        element: (
-          <ProtectedRoute element={<ProfilePage />} />
-        ),
+        element: <ProtectedRoute element={<ProfilePage />} />,
       },
       {
         path: "/setting",
-        element: (
-          <ProtectedRoute element={<SettingPage />} />
-        ),
+        element: <ProtectedRoute element={<SettingPage />} />,
       },
     ],
   },
