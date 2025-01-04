@@ -27,6 +27,7 @@ export const signup = async (req, res) => {
     if (newUser) {
       // generate jwt token
       generateToken(newUser._id, res);
+      console.log("first")
       await newUser.save();
 
       res.status(201).json({
@@ -83,9 +84,14 @@ export const logout = async (req, res) => {
 };
 
 
-export const checkAuth = async (req,res) => {
+export const checkAuth = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    if (!req.user) {
+      console.log("Unauthorized")
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    console.log("Checked ")
+    res.status(200).json(req.user);  
   } catch (error) {
     console.log("Error in checkAuth Controller", error);
     res.status(500).json({ message: "Internal Server Error" });

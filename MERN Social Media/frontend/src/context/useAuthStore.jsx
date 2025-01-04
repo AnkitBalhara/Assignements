@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null);
+  const [message,setMessage] = useState("")
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const checkAuth = async () => {
@@ -19,6 +20,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signUp = async (name,email,password)=>{
+    try {
+      const res = await axiosInstance("/auth/signup",{fullName:name,email,password})
+      setMessage(res.data.message)
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Something went wrong!");
+    }
+  }
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -29,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         authUser,
         isCheckingAuth,
         checkAuth,
+        signUp
       }}
     >
       {children}

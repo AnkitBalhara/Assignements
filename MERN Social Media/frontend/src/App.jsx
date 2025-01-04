@@ -6,7 +6,7 @@ const App = () => {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-100">
-        <header className="bg-black text-white py-4 shadow-md">
+        <header className="bg-gray-800 text-white py-4 shadow-md">
           <div className="container mx-auto px-4">
             <span className="text-2xl font-bold">MERN Social Media</span>
           </div>
