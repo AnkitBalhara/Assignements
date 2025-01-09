@@ -1,5 +1,5 @@
 import express from "express";
-const app = express();
+import {app, server} from "./lib/socket.js"
 
 import cors from "cors";
 app.use(cors({
@@ -24,7 +24,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/messages", messageRoutes);
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server is started at Port : ${process.env.PORT}`);
   connectDB();
 });
