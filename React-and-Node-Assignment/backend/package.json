@@ -6,13 +6,14 @@
   "type": "module",
   "scripts": {
     "nodemon": " nodemon src/index.js",
-    "dev":"nodemon src/index",
-    "start":"node src/index.js"
+    "dev": "nodemon src/index",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.4"

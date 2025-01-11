@@ -1,6 +1,13 @@
-import express from "express"
-const app = express();
+import express from "express";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth.route.js"
 
-app.listen(3000,()=>{
-    console.log("Server  Started")
-})
+const app = express();
+dotenv.config();
+
+
+app.use("/api/auth",authRoutes)
+
+app.listen(process.env.PORT, () => {
+  console.log("Server  Started");
+});
