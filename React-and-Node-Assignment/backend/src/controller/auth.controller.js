@@ -1,4 +1,5 @@
 import UserModel from "../model/user.model";
+import bcrypt from "bcryptjs";
 
 export const signup = async (req, res) => {
   const { fullName, password } = req.body;
@@ -13,7 +14,23 @@ export const signup = async (req, res) => {
         .json({ message: "Password must be of 6 characters" });
     }
 
-    const AlreadyUser = await UserModel.findOne({email})
-    if(AlreadyUser) return res.status(400).json({"message":"Email Already Exists"})
-  } catch (error) {}
+    const AlreadyUser = await UserModel.findOne({ email });
+
+    if (AlreadyUser) {
+      return res.status(400).json({ message: "Email Already Exists" });
+    }
+
+    const hashPassword = bcrypt.hash(password, 10);
+    console.log(hashPassword);
+
+    const newUser = new UserModel({ fullName, email, password: hashPassword });
+    if (newUser) {
+      await newUser.save();
+    } else {
+      return res.status(400).json({ message: "Invalid User Data" });
+    }
+  } catch (error) {
+    console.log("Error Occurred in SignUp :-", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
