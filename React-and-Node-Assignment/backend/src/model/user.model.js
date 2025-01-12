@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema(
       trim: true
     },
     email: {
-      type:email,
+      type:String,
       required:true,
       unique:true ,
       lowercase:true     

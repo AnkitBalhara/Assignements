@@ -1,5 +1,6 @@
 import UserModel from "../model/user.model";
 import bcrypt from "bcryptjs";
+import { generateToken } from "../Utils/generateToken";
 
 export const signup = async (req, res) => {
   const { fullName, password } = req.body;
@@ -21,11 +22,13 @@ export const signup = async (req, res) => {
     }
 
     const hashPassword = bcrypt.hash(password, 10);
-    console.log(hashPassword);
+    // console.log(hashPassword);
 
     const newUser = new UserModel({ fullName, email, password: hashPassword });
     if (newUser) {
+      generateToken(newUser._id,res)
       await newUser.save();
+      res.status(200).json({message:"User Registered Successfully!!"})
     } else {
       return res.status(400).json({ message: "Invalid User Data" });
     }
