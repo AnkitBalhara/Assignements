@@ -7,6 +7,7 @@ import { ConnectDB } from "./Utils/DB.js";
 const app = express();
 dotenv.config();
 app.use(cookieParser())
+app.use(express.json())
 
 app.use("/api/auth", authRoutes);
 
