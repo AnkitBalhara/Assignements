@@ -1,11 +1,14 @@
 import express from "express";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth.route.js";
 
 const app = express();
+dotenv.config()
 
-app.get("/",(req,res)=>{
-    res.send("Jai Shree Ram")
-})
+app.use("/api/auth",authRoutes)
 
-app.listen(3000,()=>{
+
+
+app.listen(process.env.PORT,()=>{
     console.log("Server Started")
 })
