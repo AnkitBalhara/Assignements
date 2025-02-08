@@ -1,9 +1,10 @@
 import express from "express";
 import { Server } from "socket.io";
-const app = express();
-import { createServer } from "http";
+import http from "http";
 
-const server = createServer(app);
+const app = express();
+
+const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
@@ -11,12 +12,21 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection",(socket)=>{
-  console.log("User Connected socket Id :-",socket.id)
+// io.on("connection", (socket) => {
+//   console.log("User Connected socket Id :-", socket.id);
 
-  socket.on("disconnect",(socket)=>{
-    console.log("User Disconnected :-",socket.id)
-  })
-})
+//   socket.on("disconnect", (socket) => {
+//     console.log("User Disconnected :-", socket.id);
+//   });
+// });
+
+io.on("connection", (socket) => {
+  console.log("User Connected socket Id :-", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected :-", socket.id);
+  });
+});
+
 
 export { io, app, server };
