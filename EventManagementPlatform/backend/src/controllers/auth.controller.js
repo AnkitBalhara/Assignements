@@ -28,7 +28,7 @@ export const signup = async (req, res) => {
     const newUser = new User({ fullName, email, password: hashPassword });
 
     if (newUser) {
-      generateToken(newUser._id,res)
+      generateToken(newUser._id, res);
       await newUser.save();
       return res.status(201).json({ message: "User successfully created" });
     } else {
@@ -37,5 +37,34 @@ export const signup = async (req, res) => {
   } catch (error) {
     console.log("Error occurred in SignUp :-", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const userDetails = await User.findOne({ email });
+
+    if (!userDetails) {
+      return res.status(400).json({ message: "Invalid Credintials !!!" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, userDetails.password);
+
+    if (passwordMatch) {
+      generateToken(userDetails._id, res);
+      res
+        .status(201)
+        .json({
+          _id: userDetails._id,
+          fullName: userDetails.fullName,
+          email: userDetails.email,
+        });
+    } else {
+      return res.status(400).json({ message: "Invalid Password" });
+    }
+  } catch (error) {
+    console.log("Error in login :-", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
