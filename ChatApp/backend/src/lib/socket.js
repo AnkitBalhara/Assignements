@@ -12,13 +12,8 @@ const io = new Server(server, {
   },
 });
 
-// io.on("connection", (socket) => {
-//   console.log("User Connected socket Id :-", socket.id);
-
-//   socket.on("disconnect", (socket) => {
-//     console.log("User Disconnected :-", socket.id);
-//   });
-// });
+// to store online users
+const userSocketMap = {}; // {userId : socketId}
 
 io.on("connection", (socket) => {
   console.log("User Connected socket Id :-", socket.id);
@@ -27,6 +22,5 @@ io.on("connection", (socket) => {
     console.log("User Disconnected :-", socket.id);
   });
 });
-
 
 export { io, app, server };
