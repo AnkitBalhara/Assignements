@@ -14,7 +14,7 @@ import Navbar from "./components/Navbar.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
-  console.log({ onlineUsers });
+  // console.log({ onlineUsers });
   const { theme } = useThemeStore();
   useEffect(() => {
     checkAuth();
