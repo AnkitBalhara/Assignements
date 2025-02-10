@@ -12,6 +12,10 @@ const io = new Server(server, {
   },
 });
 
+export function getReceiverUserId(userId){
+  return userSocketMap[userId]
+}
+
 // to store online users
 const userSocketMap = {}; // {userId : socketId}
 
